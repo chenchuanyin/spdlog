@@ -46,6 +46,10 @@ public:
     template<typename... Args>
     void log(level::level_enum lvl, const char *fmt, const Args &... args);
 
+    template<typename... Args>
+    void log(level::level_enum lvl, const char *filename, const char *function_name, const size_t line_number, const char *fmt,
+        const Args &... args);
+
     void log(level::level_enum lvl, const char *msg);
 
     template<typename... Args>
@@ -65,6 +69,24 @@ public:
 
     template<typename... Args>
     void critical(const char *fmt, const Args &... args);
+
+    template<typename... Args>
+    void trace(const size_t line_number, const char *fmt, const char *filename, const char *function_name, const Args &... args);
+
+    template<typename... Args>
+    void debug(const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args);
+
+    template<typename... Args>
+    void info(const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args);
+
+    template<typename... Args>
+    void warn(const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args);
+
+    template<typename... Args>
+    void error(const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args);
+
+    template<typename... Args>
+    void critical(const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args);
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #ifndef _WIN32

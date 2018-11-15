@@ -11,6 +11,7 @@
 #include "spdlog/fmt/fmt.h"
 #include "spdlog/formatter.h"
 
+#include <iostream>
 #include <array>
 #include <chrono>
 #include <ctime>
@@ -21,6 +22,8 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
+#include <libgen.h>
 
 namespace spdlog {
 namespace details {
@@ -150,6 +153,56 @@ public:
         string_view_t level_name{level::to_c_str(msg.level)};
         scoped_pad p(level_name, padinfo_, dest);
         fmt_helper::append_string_view(level_name, dest);
+    }
+};
+
+// filename appender
+class filename_formatter : public flag_formatter
+{
+public:
+    explicit filename_formatter(padding_info padinfo)
+        : flag_formatter(padinfo)
+    {
+    }
+
+    void format(const details::log_msg &msg, const std::tm &, fmt::memory_buffer &dest) override
+    {
+        string_view_t filename{basename((char *)msg.filename.c_str())};
+        scoped_pad p(filename, padinfo_, dest);
+        fmt_helper::append_string_view(filename, dest);
+    }
+};
+
+// filename appender
+class function_name_formatter : public flag_formatter
+{
+public:
+    explicit function_name_formatter(padding_info padinfo)
+        : flag_formatter(padinfo)
+    {
+    }
+
+    void format(const details::log_msg &msg, const std::tm &, fmt::memory_buffer &dest) override
+    {
+        string_view_t function_name{msg.function_name.c_str()};
+        scoped_pad p(function_name, padinfo_, dest);
+        fmt_helper::append_string_view(function_name, dest);
+    }
+};
+
+class line_number_formatter final : public flag_formatter
+{
+public:
+    explicit line_number_formatter(padding_info padinfo)
+        : flag_formatter(padinfo)
+    {
+    }
+
+    void format(const details::log_msg &msg, const std::tm &, fmt::memory_buffer &dest) override
+    {
+        const size_t field_size = 5;
+        scoped_pad p(field_size, padinfo_, dest);
+        fmt_helper::pad2(msg.line_number, dest);
     }
 };
 
@@ -1054,6 +1107,15 @@ private:
             formatters_.push_back(details::make_unique<details::i_formatter>(padding));
             break;
 #endif
+        case ('Z'):
+            formatters_.push_back(details::make_unique<details::filename_formatter>(padding));
+            break;
+        case ('G'):
+            formatters_.push_back(details::make_unique<details::function_name_formatter>(padding));
+            break;
+        case ('J'):
+            formatters_.push_back(details::make_unique<details::line_number_formatter>(padding));
+            break;
         case ('^'):
             formatters_.push_back(details::make_unique<details::color_start_formatter>(padding));
             break;

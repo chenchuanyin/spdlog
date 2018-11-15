@@ -76,6 +76,26 @@ inline void spdlog::logger::log(level::level_enum lvl, const char *fmt, const Ar
     SPDLOG_CATCH_AND_HANDLE
 }
 
+template<typename... Args>
+inline void spdlog::logger::log(
+    level::level_enum lvl, const char *filename, const char *function_name, const size_t line_number, const char *fmt, const Args &... args)
+{
+    if (!should_log(lvl))
+    {
+        return;
+    }
+
+    try
+    {
+        using details::fmt_helper::to_string_view;
+        fmt::memory_buffer buf;
+        fmt::format_to(buf, fmt, args...);
+        details::log_msg log_msg(&name_, lvl, to_string_view(buf), filename, function_name, line_number);
+        sink_it_(log_msg);
+    }
+    SPDLOG_CATCH_AND_HANDLE
+}
+
 inline void spdlog::logger::log(level::level_enum lvl, const char *msg)
 {
     if (!should_log(lvl))
@@ -158,6 +178,48 @@ template<typename... Args>
 inline void spdlog::logger::critical(const char *fmt, const Args &... args)
 {
     log(level::critical, fmt, args...);
+}
+
+template<typename... Args>
+inline void spdlog::logger::trace(
+    const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args)
+{
+    log(level::trace, filename, function_name, line_number, fmt, args...);
+}
+
+template<typename... Args>
+inline void spdlog::logger::debug(
+    const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args)
+{
+    log(level::debug, filename, function_name, line_number, fmt, args...);
+}
+
+template<typename... Args>
+inline void spdlog::logger::info(
+    const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args)
+{
+    log(level::info, filename, function_name, line_number, fmt, args...);
+}
+
+template<typename... Args>
+inline void spdlog::logger::warn(
+    const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args)
+{
+    log(level::warn, filename, function_name, line_number, fmt, args...);
+}
+
+template<typename... Args>
+inline void spdlog::logger::error(
+    const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args)
+{
+    log(level::err, filename, function_name, line_number, fmt, args...);
+}
+
+template<typename... Args>
+inline void spdlog::logger::critical(
+    const size_t line_number, const char *filename, const char *function_name, const char *fmt, const Args &... args)
+{
+    log(level::critical, filename, function_name, line_number, fmt, args...);
 }
 
 template<typename T>

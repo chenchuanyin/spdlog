@@ -16,9 +16,13 @@ namespace details {
 struct log_msg
 {
 
-    log_msg(const std::string *loggers_name, level::level_enum lvl, string_view_t view)
+    log_msg(const std::string *loggers_name, level::level_enum lvl, string_view_t view, const std::string filename = "",
+        const std::string function_name = "", const size_t line_number = 0)
         : logger_name(loggers_name)
         , level(lvl)
+        , filename(filename)
+        , function_name(function_name)
+        , line_number(line_number)
 #ifndef SPDLOG_NO_DATETIME
         , time(os::now())
 #endif
@@ -38,6 +42,9 @@ struct log_msg
     log_clock::time_point time;
     size_t thread_id{0};
     size_t msg_id{0};
+    std::string filename{""};
+    std::string function_name{""};
+    size_t line_number{0};
 
     // wrapping the formatted text with color (updated by pattern_formatter).
     mutable size_t color_range_start{0};
